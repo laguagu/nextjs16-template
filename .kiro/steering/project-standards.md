@@ -7,7 +7,7 @@ alwaysApply: true
 
 ## Stack
 
-- Next.js 16 (App Router), React 19.2, pnpm
+- Next.js 16 (App Router), React 19.3, pnpm
 - shadcn/ui + Tailwind v4 (tokens in `globals.css`)
 - React Hook Form + Zod, Vercel AI SDK
 - Imports: `@/` alias
@@ -15,21 +15,24 @@ alwaysApply: true
 
 ## Components
 
-- **Server Components default**; `"use client"` only for state/effects/browser APIs
-- Place `"use client"` at leaves (smallest boundary)
+- `"use client"` only for state/effects/browser APIs; place at leaves (smallest boundary)
 - Client props: serializable data or Server Actions (no functions/classes)
 - Pass server content via `children`
-- `page.tsx`: composition only (no logic/styling)
+- `page.tsx`: flat composition only (no logic/styling/deep nesting or boilerplate wrappers)
+- Keep components lean: drop unused wrappers, skip duplicating shared layout UI, and render only what the segment actually needs
+- Accept `className` prop and merge with `cn()` for style overrides
 - Route components → `app/(route)/_components/`
+- Route-specific types/utils → `app/(route)/lib/`
+- AI logic → `/ai`
 - Shared → `components/`, `/lib`, `/data`
 
 ## Routing
 
-- Nested layouts for persistent UI
-- Metadata: `metadata` object or `generateMetadata()`
+- Nested layouts with route groups like `(auth)` (folders in parentheses) to organize features without adding URL segments
+- When sharing chrome across segments, add segment-specific `layout.tsx` files so each parent layout wraps its child layouts once instead of duplicating markup
 - **Async params**: Always `await params` & `await searchParams`
-- Provide `error.tsx`, `loading.tsx`, `not-found.tsx` per route
-- Enable `typedRoutes: true` in `next.config.js`
+- Define `error.tsx`, `loading.tsx`, `not-found.tsx` only for segments that need custom UX; otherwise inherit from the nearest parent
+- Use Proxy API (`proxy.ts`) for request interception; replaces middleware pattern in Next.js 16
 
 ## Data & Caching
 
@@ -41,45 +44,41 @@ alwaysApply: true
 - **Revalidation**:
   - `revalidateTag(tag, 'max')` for SWR
   - `updateTag(tag)` in Server Actions for read-your-writes
-  - `router.refresh()` for uncached client updates
+  - `refresh()` (server-side) to refresh uncached data only; `router.refresh()` (client-side) for full refresh
 - Mark server-only: `import 'server-only'`
 - All DB queries via `/data` (parameterized queries only)
 - Request APIs: `await cookies()`, `await headers()`, `await draftMode()`
-- Use `after()` for post-response work (logging, analytics)
 
 ## Actions & Forms
 
 - Server Actions: `"use server"`, validate with Zod, then `updateTag()` or `revalidateTag()`
-- Rich forms: React Hook Form + `zodResolver`
 
 ## Navigation
 
 - **Server**: `redirect()`, `notFound()`, `forbidden()`, `unauthorized()`
 - **Client**: `<Link>` (declarative), `useRouter()` (imperative)
 - Loading states: `loading.tsx` + `<Suspense>` for async subtrees
-- Critical images: `<Image priority sizes="...">`
+- Use `<Suspense>` to stream slow sections: fetch in Server Components (fetch/ORM) or pass promises to client leaves and resolve them with `use()` while fallbacks render.
 
 ## State
 
-- Prefer URL search params for shareable state (`useSearchParams` / `searchParams`)
-- Minimize client state; favor Server Components/Actions
-- `startTransition` for non-blocking updates
+- Prioritize SSR: minimize `useState`, favor Server Components/Actions and URL params for shareable state
+- Client components: wrap non-urgent UI updates with `useTransition`; use `isPending` for feedback (disable buttons, show spinners). Keeps urgent interactions smooth and prevents unwanted Suspense fallbacks
+- Don't wrap controlled input state in transitions; after `await` inside transition, wrap subsequent `setState` in another `startTransition`
 
 ## Security
 
-- Only `NEXT_PUBLIC_*` exposed to client
+- Prefer Data Access Layer (DAL) to isolate sensitive data operations in server-only modules
 - Auth checks in handlers/actions (never trust client)
 
 ## Code Style
 
 - Functions <60 lines, single responsibility
-- **Naming**: PascalCase (components/types), camelCase (functions/vars), kebab-case (files)
 - Fail fast with explicit errors, guard clauses, early returns
 - UI: context over labels (minimal text)
 - Types from Zod schemas or DB types
 
 ## Error Handling
 
-- User-friendly error messages
+- Extract repeated validation (Zod schemas) and error responses into reusable functions
 - Toast notifications for feedback
-- Provide `error.tsx` boundaries per route

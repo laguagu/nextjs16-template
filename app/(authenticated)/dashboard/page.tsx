@@ -6,42 +6,51 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+interface MetricCardProps {
+  title: string;
+  description: string;
+  value: string | number;
+}
+
+function MetricCard({ title, description, value }: MetricCardProps) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <p className="text-3xl font-bold">{value}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function DashboardHeader() {
+  return <h1 className="text-3xl font-bold mb-8">Dashboard</h1>;
+}
+
+function MetricsGrid() {
+  const metrics: MetricCardProps[] = [
+    { title: "Total Users", description: "Active users", value: "0" },
+    { title: "This Month", description: "New signups", value: "0" },
+    { title: "Activity", description: "Last 24 hours", value: "0" },
+  ];
+
+  return (
+    <div className="grid gap-6 md:grid-cols-3">
+      {metrics.map((metric) => (
+        <MetricCard key={metric.title} {...metric} />
+      ))}
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
-
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Users</CardTitle>
-            <CardDescription>Active users</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">0</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>This Month</CardTitle>
-            <CardDescription>New signups</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">0</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Activity</CardTitle>
-            <CardDescription>Last 24 hours</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">0</p>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    <>
+      <DashboardHeader />
+      <MetricsGrid />
+    </>
   );
 }

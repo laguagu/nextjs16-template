@@ -1,11 +1,11 @@
 # Next.js 16 Template
 
-Template-sovellus, josta voit aloittaa työskentelyn. Sisältää parhaita käytäntöjä valmiiksi konfiguroituna.
+Template application to start working from. Pre-configured with best practices.
 
 ## Stack
 
 - Next.js 16 (App Router, Turbopack), React 19, pnpm
-- shadcn/ui + Tailwind v4 (tokens `globals.css`:ssä)
+- shadcn/ui + Tailwind v4 (tokens in `globals.css`)
 - React Hook Form + Zod, Drizzle ORM
 - Imports: `@/` alias
 - AI: Vercel AI SDK placeholder
@@ -16,67 +16,67 @@ pnpm install && pnpm dev
 
 ## Components
 
-- `"use client"` vain tilalle/efekteille/browser API:lle; sijoita lehtiin (pienin rajaus)
-- Client props: serialisoitava data tai Server Actions (ei funktioita/luokkia)
-- Välitä server-sisältö `children`-propilla
-- `page.tsx`: tasainen compositio (ei logiikkaa/stylejä/syvää nestingiä)
-- Pidä komponentit kevyinä: poista käyttämättömät wrapperit, renderöi vain segmentin tarpeelliset
-- Hyväksy `className`-prop ja merge `cn()`:llä
-- Route-komponentit → `app/(route)/_components/`
-- Route-spesifit tyypit/utilit → `app/(route)/lib/`
-- AI-logiikka → `/ai`
+- `"use client"` only for state/effects/browser APIs; place at leaves (smallest boundary)
+- Client props: serializable data or Server Actions (no functions/classes)
+- Pass server content via `children`
+- `page.tsx`: flat composition only (no logic/styling/deep nesting)
+- Keep components lean: drop unused wrappers, render only what the segment needs
+- Accept `className` prop and merge with `cn()`
+- Route components → `app/(route)/_components/`
+- Route-specific types/utils → `app/(route)/lib/`
+- AI logic → `/ai`
 - Shared → `components/`, `/lib`, `/data`
 
 ## Routing
 
-- Nested layoutit route groupeilla kuten `(auth)` organisoimaan featureseja ilman URL-segmenttejä
-- **Async params**: Aina `await params` & `await searchParams`
-- Määrittele `error.tsx`, `loading.tsx`, `not-found.tsx` vain segmenteille, jotka tarvitsevat custom UX
-- Käytä Proxy API (`proxy.ts`) request-interceptioon
+- Nested layouts with route groups like `(auth)` to organize features without adding URL segments
+- **Async params**: Always `await params` & `await searchParams`
+- Define `error.tsx`, `loading.tsx`, `not-found.tsx` only for segments that need custom UX
+- Use Proxy API (`proxy.ts`) for request interception
 
 ## Data & Caching
 
-- **"use cache"**: Suosi funktiokehyksistä cachausta `"use cache"`-direktiivillä
+- **"use cache"**: Prefer function-level caching with `"use cache"` directive
 - **Explicit caching**:
   - `cache: 'force-cache'` (static)
   - `next: { revalidate: N }` (ISR)
   - `cache: 'no-store'` (always fresh)
 - **Revalidation**:
-  - `revalidateTag(tag, 'max')` SWR:lle
-  - `updateTag(tag)` Server Actionsissa read-your-writes-tilanteisiin
-- Merkitse server-only: `import 'server-only'`
-- Kaikki DB-kyselyt `/data`:n kautta (parametrisoidut kyselyt)
+  - `revalidateTag(tag, 'max')` for SWR
+  - `updateTag(tag)` in Server Actions for read-your-writes
+- Mark server-only: `import 'server-only'`
+- All DB queries via `/data` (parameterized queries only)
 - Request APIs: `await cookies()`, `await headers()`, `await draftMode()`
 
 ## Actions & Forms
 
-- Server Actions: `"use server"`, validoi Zodilla, sitten `updateTag()` tai `revalidateTag()`
+- Server Actions: `"use server"`, validate with Zod, then `updateTag()` or `revalidateTag()`
 
 ## Navigation
 
 - **Server**: `redirect()`, `notFound()`, `forbidden()`, `unauthorized()`
-- **Client**: `<Link>` (deklaratiivinen), `useRouter()` (imperatiivinen)
-- Loading states: `loading.tsx` + `<Suspense>` async subtreeille
+- **Client**: `<Link>` (declarative), `useRouter()` (imperative)
+- Loading states: `loading.tsx` + `<Suspense>` for async subtrees
 
 ## State
 
-- Priorisoi SSR: minimoi `useState`, suosi Server Components/Actions ja URL params jaettavalle tilalle
-- Client components: kääri ei-kiireelliset UI-päivitykset `useTransition`-hookilla
-- Älä kääri controlled input statea transitioneihin; `await`:n jälkeen transitionissa, kääri seuraava `setState` uuteen `startTransition`-kutsuun
+- Prioritize SSR: minimize `useState`, favor Server Components/Actions and URL params for shareable state
+- Client components: wrap non-urgent UI updates with `useTransition`
+- Don't wrap controlled input state in transitions; after `await` inside transition, wrap subsequent `setState` in another `startTransition`
 
 ## Security
 
-- Suosi Data Access Layeria (DAL) eristämään arkaluonteiset data-operaatiot server-only-moduuleihin
-- Auth-tarkistukset handlereissa/actionseissa (älä luota clientiin)
+- Prefer Data Access Layer (DAL) to isolate sensitive data operations in server-only modules
+- Auth checks in handlers/actions (never trust client)
 
 ## Code Style
 
-- Funktiot <60 riviä, single responsibility
-- Fail fast eksplisiittisillä virheillä, guard clauses, early returns
-- UI: konteksti yli labelien (minimaalinen teksti)
-- Tyypit Zod-schemoista tai DB-tyypeistä
+- Functions <60 lines, single responsibility
+- Fail fast with explicit errors, guard clauses, early returns
+- UI: context over labels (minimal text)
+- Types from Zod schemas or DB types
 
 ## Error Handling
 
-- Erota toistuva validointi (Zod schemat) ja virheresponset uudelleenkäytettäviin funktioihin
-- Toast-notifikaatiot feedbackille
+- Extract repeated validation (Zod schemas) and error responses into reusable functions
+- Toast notifications for feedback

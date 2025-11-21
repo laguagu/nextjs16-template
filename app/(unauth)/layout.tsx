@@ -1,3 +1,5 @@
+// Example layout for unauthenticated users
+
 export default function UnauthenticatedLayout({
   children,
 }: {

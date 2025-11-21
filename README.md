@@ -1,241 +1,82 @@
 # Next.js 16 Template
 
-A modern, production-ready Next.js 16 starter template with best practices baked in.
+Template-sovellus, josta voit aloittaa työskentelyn. Sisältää parhaita käytäntöjä valmiiksi konfiguroituna.
 
-> **Note:** Includes AI agent configs for Cursor, GitHub Copilot, Windsurf, and Kodu IDE.
+## Stack
 
-## 🚀 Tech Stack
-
-- **Next.js 16.0.3** - App Router, Turbopack
-- **React 19.2** - Server Components, React Compiler
-- **TypeScript 5.9** - Strict mode
-- **Tailwind CSS 4.1** - CSS variables in `globals.css`
-- **shadcn/ui** - 40+ pre-installed components
-- **React Hook Form + Zod** - Form handling & validation
-- **Drizzle ORM** - Database toolkit (configured, not connected)
-- **pnpm** - Fast package manager
-- **Lucide Icons** - Icon library
-- **Next Themes** - Dark mode support
-- **Sonner** - Toast notifications
-- **Recharts** - Data visualization
-
-## 📁 Project Structure
-
-```
-nextjs16-template/
-├── app/
-│   ├── (authenticated)/          # Protected routes
-│   │   ├── dashboard/
-│   │   │   └── page.tsx          # Dashboard with metric cards
-│   │   └── layout.tsx            # Auth layout with header
-│   ├── (unauthenticated)/        # Public routes
-│   │   ├── page.tsx              # Welcome page
-│   │   ├── sign-in/
-│   │   └── sign-up/
-│   ├── actions/                  # Server Actions
-│   │   └── auth/
-│   │       ├── login-user.ts     # With Zod validation
-│   │       └── register-user.ts
-│   ├── api/                      # API routes (empty)
-│   ├── layout.tsx                # Root layout
-│   ├── loading.tsx
-│   ├── error.tsx
-│   ├── not-found.tsx
-│   └── globals.css               # Global styles + tokens
-├── components/
-│   ├── ui/                       # shadcn/ui components (40+)
-│   └── layout/
-│       ├── header.tsx
-│       └── footer.tsx
-├── data/                         # Server-only data layer
-│   ├── cache-tags.ts             # Centralized cache tags
-│   └── users.ts                  # Example with docs
-├── lib/
-│   ├── db/
-│   │   ├── index.ts              # Drizzle client setup
-│   │   ├── schema.ts             # Schema examples
-│   │   └── queries.ts
-│   └── utils.ts                  # cn() helper
-├── hooks/
-│   └── use-mobile.ts
-├── ai/                           # AI SDK placeholder
-├── public/                       # Static assets
-├── .github/
-│   └── copilot-instructions.md   # AI context
-├── .cursorrules                  # Cursor IDE config
-├── .windsurfrules                # Windsurf IDE config
-├── .kodu/                        # Kodu IDE config
-├── proxy.ts                      # Middleware (empty with examples)
-├── next.config.ts                # React Compiler enabled
-├── tailwind.config.ts
-├── tsconfig.json                 # @/* alias configured
-├── components.json               # shadcn/ui config
-├── drizzle.config.ts
-├── .env.example
-└── package.json
-```
-
-## 🎯 What's Included
-
-### ✅ Implemented
-- Route groups: `(authenticated)` and `(unauthenticated)`
-- Basic dashboard with metric cards
-- Server Actions with Zod validation (login/register stubs)
-- shadcn/ui component library (fully integrated)
-- Data layer pattern with cache tags
-- TypeScript strict mode
-- Tailwind CSS with design tokens
-- AI agent configuration files
-- React 19 features (Server Components, React Compiler)
-
-### 📝 Boilerplate/Empty
-- Database schema (examples only)
-- Authentication logic (validation only, no real auth)
-- API routes
-- Drizzle ORM connection (configured but unused)
-- Middleware auth checks
-- AI SDK directory
-
-## 📦 Getting Started
-
-### 1. Install dependencies
+- Next.js 16 (App Router, Turbopack), React 19, pnpm
+- shadcn/ui + Tailwind v4 (tokens `globals.css`:ssä)
+- React Hook Form + Zod, Drizzle ORM
+- Imports: `@/` alias
+- AI: Vercel AI SDK placeholder
 
 ```bash
-pnpm install
+pnpm install && pnpm dev
 ```
 
-### 2. Set up environment
+## Components
 
-```bash
-cp .env.example .env.local
-```
+- `"use client"` vain tilalle/efekteille/browser API:lle; sijoita lehtiin (pienin rajaus)
+- Client props: serialisoitava data tai Server Actions (ei funktioita/luokkia)
+- Välitä server-sisältö `children`-propilla
+- `page.tsx`: tasainen compositio (ei logiikkaa/stylejä/syvää nestingiä)
+- Pidä komponentit kevyinä: poista käyttämättömät wrapperit, renderöi vain segmentin tarpeelliset
+- Hyväksy `className`-prop ja merge `cn()`:llä
+- Route-komponentit → `app/(route)/_components/`
+- Route-spesifit tyypit/utilit → `app/(route)/lib/`
+- AI-logiikka → `/ai`
+- Shared → `components/`, `/lib`, `/data`
 
-Edit `.env.local` with your values:
-```env
-DATABASE_URL=postgresql://user:password@localhost:5432/db
-AUTH_SECRET=your-secret-key
-OPENAI_API_KEY=sk-...
-```
+## Routing
 
-### 3. Run development server
+- Nested layoutit route groupeilla kuten `(auth)` organisoimaan featureseja ilman URL-segmenttejä
+- **Async params**: Aina `await params` & `await searchParams`
+- Määrittele `error.tsx`, `loading.tsx`, `not-found.tsx` vain segmenteille, jotka tarvitsevat custom UX
+- Käytä Proxy API (`proxy.ts`) request-interceptioon
 
-```bash
-pnpm dev
-```
+## Data & Caching
 
-Open [http://localhost:3000](http://localhost:3000)
+- **"use cache"**: Suosi funktiokehyksistä cachausta `"use cache"`-direktiivillä
+- **Explicit caching**:
+  - `cache: 'force-cache'` (static)
+  - `next: { revalidate: N }` (ISR)
+  - `cache: 'no-store'` (always fresh)
+- **Revalidation**:
+  - `revalidateTag(tag, 'max')` SWR:lle
+  - `updateTag(tag)` Server Actionsissa read-your-writes-tilanteisiin
+- Merkitse server-only: `import 'server-only'`
+- Kaikki DB-kyselyt `/data`:n kautta (parametrisoidut kyselyt)
+- Request APIs: `await cookies()`, `await headers()`, `await draftMode()`
 
-### 4. (Optional) Set up database
+## Actions & Forms
 
-```bash
-pnpm drizzle-kit generate
-pnpm drizzle-kit migrate
-```
+- Server Actions: `"use server"`, validoi Zodilla, sitten `updateTag()` tai `revalidateTag()`
 
-## 🔧 Available Scripts
+## Navigation
 
-```bash
-pnpm dev          # Start dev server with Turbopack
-pnpm build        # Build for production with Turbopack
-pnpm start        # Start production server
-pnpm lint         # Run ESLint
-pnpm format       # Format with Prettier
-```
+- **Server**: `redirect()`, `notFound()`, `forbidden()`, `unauthorized()`
+- **Client**: `<Link>` (deklaratiivinen), `useRouter()` (imperatiivinen)
+- Loading states: `loading.tsx` + `<Suspense>` async subtreeille
 
-## 💡 Key Concepts
+## State
 
-### Components
-- **Server Components by default** - Use `"use client"` only when needed
-- Place `"use client"` at leaves (smallest boundary)
-- Route-specific components in `_components/` folder
-- Shared components in root `components/`
+- Priorisoi SSR: minimoi `useState`, suosi Server Components/Actions ja URL params jaettavalle tilalle
+- Client components: kääri ei-kiireelliset UI-päivitykset `useTransition`-hookilla
+- Älä kääri controlled input statea transitioneihin; `await`:n jälkeen transitionissa, kääri seuraava `setState` uuteen `startTransition`-kutsuun
 
-### Data Fetching
-- Use `"use cache"` directive for caching
-- Use `cacheTag()` for cache invalidation
-- All queries in `/data` folder
-- Mark server-only code: `import "server-only"`
+## Security
 
-### Server Actions
-- Add `"use server"` directive
-- Validate with Zod inline
-- Use `useActionState` for form state
-- Return consistent result types
+- Suosi Data Access Layeria (DAL) eristämään arkaluonteiset data-operaatiot server-only-moduuleihin
+- Auth-tarkistukset handlereissa/actionseissa (älä luota clientiin)
 
-### Routing
-- Route groups for layout organization
-- Always `await params` and `await searchParams`
-- Provide `error.tsx`, `loading.tsx`, `not-found.tsx`
+## Code Style
 
-### File Organization
-- No `index.ts` files - use direct imports with `@/`
-- Keep `page.tsx` focused on composition
-- Server Components > Client Components
+- Funktiot <60 riviä, single responsibility
+- Fail fast eksplisiittisillä virheillä, guard clauses, early returns
+- UI: konteksti yli labelien (minimaalinen teksti)
+- Tyypit Zod-schemoista tai DB-tyypeistä
 
-## 🗂️ Directory Guide
+## Error Handling
 
-| Directory | Purpose |
-|-----------|---------|
-| `app/` | Pages, layouts, and routing |
-| `app/actions/` | Server Actions organized by feature |
-| `components/ui/` | shadcn/ui components |
-| `components/layout/` | Shared layout components |
-| `data/` | Server-only data fetching with caching |
-| `lib/db/` | Database client and schema |
-| `lib/validations/` | Zod schemas (create as needed) |
-| `hooks/` | Custom React hooks |
-| `types/` | TypeScript type definitions (create as needed) |
-| `public/` | Static assets |
-| `ai/` | AI SDK utilities (if using) |
-
-## 🎨 Styling
-
-Tailwind CSS 4 with CSS variables in `globals.css`:
-- Design tokens as CSS variables
-- Dark mode support via `next-themes`
-- `cn()` utility for class merging
-- shadcn/ui components use `data-slot` attributes
-
-## 🔐 Security Best Practices
-
-- Only `NEXT_PUBLIC_*` env vars are exposed to client
-- Always verify auth in Server Actions/API routes
-- Use middleware (`proxy.ts`) for route protection
-- Never use `any` - use `unknown` for truly unknown types
-
-## 📚 Next Steps
-
-1. **Add authentication** - Implement actual auth logic in Server Actions
-2. **Connect database** - Update `DATABASE_URL` and run migrations
-3. **Build features** - Start adding your app-specific functionality
-4. **Configure middleware** - Add auth checks in `proxy.ts`
-5. **Customize theme** - Edit CSS variables in `globals.css`
-6. **Add validations** - Create Zod schemas in `lib/validations/`
-
-## 🤖 AI Agent Support
-
-This template includes configuration files for AI coding assistants:
-
-- `.github/copilot-instructions.md` - GitHub Copilot
-- `.cursorrules` - Cursor IDE
-- `.windsurfrules` - Windsurf IDE
-- `.kodu/` - Kodu IDE
-
-These files provide context about project structure and coding standards.
-
-## 📖 Resources
-
-- [Next.js 16 Docs](https://nextjs.org/docs)
-- [React 19 Docs](https://react.dev)
-- [shadcn/ui](https://ui.shadcn.com)
-- [Tailwind CSS v4](https://tailwindcss.com)
-- [Drizzle ORM](https://orm.drizzle.team)
-- [Zod](https://zod.dev)
-
-## 📄 License
-
-MIT
-
----
-
-**Happy coding!** 🚀
+- Erota toistuva validointi (Zod schemat) ja virheresponset uudelleenkäytettäviin funktioihin
+- Toast-notifikaatiot feedbackille

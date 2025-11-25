@@ -1,11 +1,9 @@
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 /**
  * Global Header Component
  *
- * This is a shared header that can be used across your application.
- * Place it in your root layout or in specific route group layouts.
+ * Use in route group layouts like (marketing)/layout.tsx
  */
 
 export function Header() {
@@ -14,32 +12,23 @@ export function Header() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <Link href="/" className="text-xl font-bold">
-            App Logo
+            Logo
           </Link>
 
-          <nav className="hidden md:flex gap-4">
+          <nav className="hidden gap-4 md:flex">
             <Link
               href="/"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               Home
             </Link>
             <Link
               href="/about"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               About
             </Link>
           </nav>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/login">Login</Link>
-          </Button>
-          <Button size="sm" asChild>
-            <Link href="/register">Sign up</Link>
-          </Button>
         </div>
       </div>
     </header>

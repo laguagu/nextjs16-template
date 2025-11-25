@@ -11,18 +11,18 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t bg-muted/50">
+    <footer className="bg-muted/50 border-t">
       <div className="container mx-auto px-4 py-8">
         <div className="grid gap-8 md:grid-cols-3">
           <div>
-            <h3 className="font-semibold mb-3">About</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="mb-3 font-semibold">About</h3>
+            <p className="text-muted-foreground text-sm">
               Your application description goes here.
             </p>
           </div>
 
           <div>
-            <h3 className="font-semibold mb-3">Quick Links</h3>
+            <h3 className="mb-3 font-semibold">Quick Links</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
@@ -52,7 +52,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-3">Legal</h3>
+            <h3 className="mb-3 font-semibold">Legal</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
@@ -74,7 +74,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
+        <div className="text-muted-foreground mt-8 border-t pt-8 text-center text-sm">
           <p>&copy; {currentYear} Your Company. All rights reserved.</p>
         </div>
       </div>

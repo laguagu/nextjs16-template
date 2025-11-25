@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * Data Fetching with "use cache"
  *

@@ -33,6 +33,7 @@ globs: "**/*.{ts,tsx,js,jsx}"
 
 - Nested layouts with route groups like `(auth)` (folders in parentheses) to organize features without adding URL segments
 - When sharing chrome across segments, add segment-specific `layout.tsx` files so each parent layout wraps its child layouts once instead of duplicating markup
+- Use `template.tsx` when you need state/effects to reset on navigation (layout persists state, template remounts)
 - Async params: Always `await params` & `await searchParams`
 - Define `error.tsx`, `global-error.tsx`, `loading.tsx`, `not-found.tsx` only for segments that need custom UX; otherwise inherit from the nearest parent
 - Use Proxy API (`proxy.ts`) for request interception; replaces middleware pattern in Next.js 16
